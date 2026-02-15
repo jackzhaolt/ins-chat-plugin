@@ -1,0 +1,39 @@
+# Instagram Chat Plugin Bot Configuration
+
+instagram:
+  # Instagram group chat thread ID
+  # To find this, run: python scripts/find_thread.py
+  thread_id: "123456789012345678"
+
+rotation:
+  # Start date for week 1 (YYYY-MM-DD format, preferably a Monday)
+  start_date: "2026-02-17"
+
+  # List of participants (1-8 people)
+  # Order matters: rotation cycles through this list
+  # If < 5 people: everyone stays in one group
+  # If >= 5 people: splits into main group (n-1) and solo person (rotates weekly)
+  participants:
+    - "Alice"
+    - "Bob"
+    - "Charlie"
+    - "Diana"
+    - "Eve"
+
+message:
+  # Template for when there's only 1 group (< 5 participants)
+  single_group_template: |
+    📅 Week {week_number} - All Together!
+
+    👥 Team: {all_members}
+
+    Have a great week!
+
+  # Template for when there are 2 groups (>= 5 participants)
+  split_group_template: |
+    📅 Week {week_number} Rotation
+
+    🏢 Main Group: {main_group}
+    🌟 Solo: {solo_person}
+
+    Have a great week!
