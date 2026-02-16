@@ -1,129 +1,120 @@
-# Quick Start Guide
+# Quick Start Guide - 2 Minutes!
 
-Get your Instagram rotation bot up and running in 5 minutes!
+Get your rotation message in 2 minutes - no complex setup!
 
-## Step 1: Install Dependencies
+## Step 1: Install (30 seconds)
 
 ```bash
 pip install -r requirements.txt
 ```
 
-**Note**: Requires Python 3.8+. If you see errors, check your Python version:
-```bash
-python --version
-```
+That's it! No Instagram API needed.
 
-## Step 2: Set Up Credentials
-
-```bash
-# Copy the example environment file
-cp .env.example .env
-
-# Edit .env and add your Instagram credentials
-# INSTAGRAM_USERNAME=your_username
-# INSTAGRAM_PASSWORD=your_password
-```
-
-## Step 3: Find Your Thread ID
-
-Run the helper script to list all your Instagram group chats:
-
-```bash
-python scripts/find_thread.py
-```
-
-Copy the Thread ID of your target group chat.
-
-## Step 4: Configure the Bot
+## Step 2: Configure (1 minute)
 
 Edit `config/config.yaml`:
 
-1. Paste your thread ID:
-   ```yaml
-   instagram:
-     thread_id: "YOUR_THREAD_ID_HERE"
-   ```
-
-2. Set your start date (first Monday of rotation):
-   ```yaml
-   rotation:
-     start_date: "2026-02-17"  # YYYY-MM-DD format
-   ```
-
-3. Update participants list:
-   ```yaml
-   participants:
-     - "Alice"
-     - "Bob"
-     - "Charlie"
-     - "Diana"
-     - "Eve"
-   ```
-
-## Step 5: Test Locally
-
-**Dry run (doesn't send message):**
-```bash
-export DRY_RUN=true
-python -m src.bot
+```yaml
+rotation:
+  start_date: "2026-02-17"  # Set to your desired Monday
+  participants:
+    - "Your Name 1"
+    - "Your Name 2"
+    - "Your Name 3"
+    - "Your Name 4"
+    - "Your Name 5"
 ```
 
-**Send test message:**
+## Step 3: Generate Message (5 seconds)
+
 ```bash
-export DRY_RUN=false
-python -m src.bot
+python -m src.bot_simple
 ```
 
-## Step 6: Deploy to GitHub Actions
+## Step 4: Copy and Paste (30 seconds)
 
-1. **Push to GitHub:**
-   ```bash
-   git add .
-   git commit -m "Setup Instagram rotation bot"
-   git push origin main
-   ```
+Copy the message from the output and paste it into your Instagram group chat!
 
-2. **Add GitHub Secrets:**
-   - Go to: Settings → Secrets and variables → Actions
-   - Add `INSTAGRAM_USERNAME`
-   - Add `INSTAGRAM_PASSWORD`
+---
 
-3. **Test the Workflow:**
-   - Go to: Actions → Weekly Instagram Rotation Bot
-   - Click "Run workflow"
-   - Enable "Dry run mode"
-   - Check logs
+## That's It! 🎉
 
-4. **Run for Real:**
-   - Run workflow again without dry run
-   - Verify message appears in Instagram
+Every week:
+1. Run `python -m src.bot_simple`
+2. Copy the message
+3. Paste into Instagram
 
-## Done! 🎉
+---
 
-Your bot will now run automatically every Monday at 9 AM UTC.
+## Optional: GitHub Actions Auto-Reminder
 
-## Common Issues
+Want a weekly reminder? Push to GitHub:
 
-### 2FA Required
-- Solution: Disable 2FA on your Instagram account for automation
-
-### Thread ID Not Found
-- Solution: Re-run `python scripts/find_thread.py` and update config
-
-### Wrong Week Number
-- Solution: Verify `start_date` is the Monday of your first week
-
-## Next Steps
-
-- Customize message templates in `config/config.yaml`
-- Adjust schedule in `.github/workflows/weekly-rotation.yml`
-- Read full documentation in `README.md`
-
-## Testing
-
-Run unit tests to verify everything works:
 ```bash
-pytest tests/ -v
+git add .
+git commit -m "Setup rotation bot"
+git push
 ```
 
-All 26 tests should pass! ✅
+Every Monday:
+- Go to **Actions** tab on GitHub
+- Click latest workflow run
+- Copy message from logs
+- Paste into Instagram
+
+---
+
+## Examples
+
+### Example 1: 4 People (Single Group)
+
+```
+📅 Week 5 - All Together!
+
+👥 Team: Alice, Bob, Charlie, Diana
+
+Have a great week!
+```
+
+### Example 2: 5+ People (Two Groups)
+
+```
+📅 Week 5 Rotation
+
+🏢 Main Group: Alice, Bob, Charlie, Diana
+🌟 Solo: Eve
+
+Have a great week!
+```
+
+---
+
+## Tips
+
+- **Customize messages**: Edit templates in `config/config.yaml`
+- **Change schedule**: Week 1 starts on your `start_date`
+- **Add/remove people**: Just edit the participants list
+- **Test it**: Run the command anytime to see the current week's message
+
+---
+
+## Troubleshooting
+
+**"Module not found"**
+```bash
+pip install PyYAML
+```
+
+**Wrong week number**
+- Check your `start_date` in config.yaml
+- Should be a Monday in YYYY-MM-DD format
+
+**Need help?**
+- Read the full README.md
+- Check that config.yaml is valid YAML syntax
+
+---
+
+## That's All!
+
+No complex API setup, no authentication issues, just simple copy-paste! 📋✨

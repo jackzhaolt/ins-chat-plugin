@@ -1,16 +1,17 @@
-# Instagram Chat Plugin Bot
+# Instagram Rotation Bot (Simple Copy-Paste Version)
 
-Automated Instagram bot that posts weekly rotation messages to a group chat. The bot reads a list of names and groups them based on a deterministic rotation schedule, eliminating the need for manual weekly coordination.
+Automated rotation message generator that calculates weekly team groupings. Run the script, copy the output, and paste it into your Instagram group chat - no API setup required!
 
 ## Features
 
-- 📅 **Automated Weekly Messages**: Posts rotation schedules every Monday via GitHub Actions
+- 📅 **Automated Calculation**: Determines current week and rotation automatically
 - 🔄 **Intelligent Grouping**:
   - If < 5 participants: Everyone stays together in one group
-  - If ≥ 5 participants: Splits into main group (n-1) and solo person, with weekly rotation
-- ⚙️ **Configurable**: Easy YAML configuration for participants, start date, and message templates
-- 🧪 **Testable**: Dry run mode for testing without sending messages
-- 🔒 **Secure**: Credentials stored as GitHub Secrets
+  - If ≥ 5 participants: Splits into main group (n-1) and solo person with weekly rotation
+- 📋 **Copy-Paste Ready**: Generates formatted messages ready to paste into Instagram
+- ⚙️ **Easy Configuration**: Simple YAML file for participants and settings
+- 🤖 **GitHub Actions**: Optional weekly reminder (message appears in logs)
+- ✅ **No Authentication**: No Instagram API, no login issues, no blocking
 
 ## How It Works
 
@@ -39,65 +40,19 @@ With 5 participants: `[Alice, Bob, Charlie, Diana, Eve]`
 - **Week 5**: Main: [Alice, Bob, Charlie, Diana], Solo: [Eve]
 - **Week 6**: Repeats Week 1 pattern
 
-## Prerequisites
+## Quick Start
 
-- Python 3.8+ (for local testing)
-- Instagram account (preferably without 2FA for automation)
-- GitHub account (for GitHub Actions automation)
-
-## Installation
-
-### 1. Clone the Repository
-
-```bash
-git clone <your-repo-url>
-cd ins-chat-plugin
-```
-
-### 2. Install Dependencies
+### 1. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Set Up Environment Variables
-
-Create a `.env` file in the project root:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and add your Instagram credentials:
-
-```env
-INSTAGRAM_USERNAME=your_username
-INSTAGRAM_PASSWORD=your_password
-DRY_RUN=false
-```
-
-⚠️ **Security Note**: Never commit the `.env` file to version control. It's already in `.gitignore`.
-
-## Configuration
-
-### 1. Find Your Instagram Thread ID
-
-Run the helper script to list all your Instagram group chats:
-
-```bash
-python scripts/find_thread.py
-```
-
-This will output all your threads with their IDs. Copy the thread ID of your target group chat.
-
-### 2. Configure the Bot
+### 2. Configure Your Rotation
 
 Edit `config/config.yaml`:
 
 ```yaml
-instagram:
-  thread_id: "123456789012345678"  # Paste your thread ID here
-
 rotation:
   start_date: "2026-02-17"  # Monday of week 1 (YYYY-MM-DD)
   participants:
@@ -125,42 +80,150 @@ message:
     Have a great week!
 ```
 
-**Configuration Notes:**
-- `thread_id`: Instagram group chat thread ID (find using `find_thread.py`)
-- `start_date`: First Monday of your rotation (YYYY-MM-DD format)
-- `participants`: List of 1-8 names (order matters for rotation)
-- Message templates support formatting variables:
-  - `{week_number}`: Current week number
-  - `{all_members}`: Comma-separated list of all members
-  - `{main_group}`: Comma-separated list of main group members
-  - `{solo_person}`: Name of solo person
-
-## Local Testing
-
-### Test Configuration and Rotation Logic
-
-Run in dry run mode (doesn't send messages):
+### 3. Generate Your Message
 
 ```bash
-export DRY_RUN=true
-python -m src.bot
+python -m src.bot_simple
 ```
 
-This will:
-- Load and validate configuration
-- Calculate current week number
-- Determine rotation
-- Format message
-- Display the message without sending
-
-### Test Actual Message Sending
-
-To test sending a real message:
-
-```bash
-export DRY_RUN=false
-python -m src.bot
+**Output:**
 ```
+================================================================================
+📱 Instagram Rotation Message Generator
+================================================================================
+
+📅 Today: 2026-02-15
+📆 Start date: 2026-02-17
+🔢 Week number: 1
+
+👥 Participants: Alice, Bob, Charlie, Diana, Eve
+
+📋 Rotation: Two groups (≥ 5 people)
+   🏢 Main group: Bob, Charlie, Diana, Eve
+   🌟 Solo: Alice
+
+================================================================================
+📋 MESSAGE TO COPY (between the lines below)
+================================================================================
+
+📅 Week 1 Rotation
+
+🏢 Main Group: Bob, Charlie, Diana, Eve
+🌟 Solo: Alice
+
+Have a great week!
+
+================================================================================
+✅ Copy the message above and paste it into your Instagram group chat!
+================================================================================
+```
+
+### 4. Copy and Paste
+
+Copy the message between the lines and paste it into your Instagram group chat!
+
+## Configuration
+
+### Start Date
+
+The `start_date` should be the **Monday of your first week** in `YYYY-MM-DD` format.
+
+```yaml
+rotation:
+  start_date: "2026-02-17"  # Week 1 begins this Monday
+```
+
+The bot will automatically calculate the current week number based on this date.
+
+### Participants
+
+Add 1-8 participant names:
+
+```yaml
+rotation:
+  participants:
+    - "Name 1"
+    - "Name 2"
+    - "Name 3"
+```
+
+**Important Notes:**
+- Order matters! Rotation cycles through this list in order
+- Maximum 8 participants
+- Names can be anything (real names, nicknames, @handles)
+
+### Message Templates
+
+Customize the message format:
+
+```yaml
+message:
+  # Used when < 5 participants
+  single_group_template: |
+    Your message here
+    Use {week_number} and {all_members}
+
+  # Used when >= 5 participants
+  split_group_template: |
+    Your message here
+    Use {week_number}, {main_group}, and {solo_person}
+```
+
+**Available variables:**
+- `{week_number}` - Current week number
+- `{all_members}` - Comma-separated list of all members (single group only)
+- `{main_group}` - Comma-separated list of main group (split group only)
+- `{solo_person}` - Name of solo person (split group only)
+
+## GitHub Actions (Optional)
+
+Get automatic weekly reminders via GitHub Actions!
+
+### Setup
+
+1. **Push to GitHub:**
+   ```bash
+   git add .
+   git commit -m "Setup rotation bot"
+   git push origin main
+   ```
+
+2. **Enable GitHub Actions:**
+   - Go to your repository on GitHub
+   - Click the **Actions** tab
+   - Enable workflows if prompted
+
+### How It Works
+
+- **Automatic**: Runs every Monday at 9 AM UTC
+- **Message in logs**: The rotation message appears in the workflow logs
+- **Manual run**: You can trigger it anytime from the Actions tab
+
+### To Use the Message
+
+1. Go to **Actions** tab in your GitHub repository
+2. Click on the latest **"Weekly Rotation Message Generator"** run
+3. Expand the **"Generate rotation message"** step
+4. Copy the message from the logs
+5. Paste into your Instagram group chat
+
+### Adjust Schedule
+
+Edit `.github/workflows/weekly-message.yml` to change the time:
+
+```yaml
+schedule:
+  - cron: '0 9 * * 1'  # Every Monday at 9 AM UTC
+```
+
+Common schedules:
+- Every Monday at 5 PM UTC: `'0 17 * * 1'`
+- Every Friday at 12 PM UTC: `'0 12 * * 5'`
+- Every Sunday at 8 PM UTC: `'0 20 * * 0'`
+
+**Note**: GitHub Actions uses UTC timezone.
+
+## Testing
 
 ### Run Unit Tests
 
@@ -168,101 +231,51 @@ python -m src.bot
 pytest tests/ -v
 ```
 
-With coverage:
+All 26 tests should pass! ✅
+
+### Test With Different Dates
+
+You can temporarily change the start date in `config/config.yaml` to test different week calculations.
+
+## Updating Participants
+
+To add or remove participants:
+
+1. Edit `config/config.yaml`
+2. Update the `participants` list
+3. Run `python -m src.bot_simple` to verify
 
 ```bash
-pytest tests/ --cov=src --cov-report=html
+git add config/config.yaml
+git commit -m "Update participants"
+git push
 ```
 
-## GitHub Actions Setup
+**Important**: Changing the participant order or count resets the rotation cycle.
 
-### 1. Push to GitHub
+## Project Structure
 
-```bash
-git add .
-git commit -m "Initial commit: Instagram rotation bot"
-git push origin main
 ```
-
-### 2. Add GitHub Secrets
-
-1. Go to your repository on GitHub
-2. Navigate to **Settings** → **Secrets and variables** → **Actions**
-3. Click **New repository secret**
-4. Add the following secrets:
-   - `INSTAGRAM_USERNAME`: Your Instagram username
-   - `INSTAGRAM_PASSWORD`: Your Instagram password
-
-### 3. Enable GitHub Actions
-
-1. Go to the **Actions** tab in your repository
-2. If prompted, enable GitHub Actions for your repository
-
-### 4. Test the Workflow
-
-**Manual test run:**
-
-1. Go to **Actions** → **Weekly Instagram Rotation Bot**
-2. Click **Run workflow**
-3. Select branch (usually `main`)
-4. Enable **Dry run mode** for first test
-5. Click **Run workflow**
-
-Check the logs to verify:
-- Configuration loads correctly
-- Week number calculates correctly
-- Rotation is correct
-- Message formats properly
-
-**Test actual sending:**
-
-Run workflow again without dry run mode to send a real message.
-
-### 5. Verify Automated Schedule
-
-The workflow is configured to run automatically every Monday at 9:00 AM UTC (see `.github/workflows/weekly-rotation.yml`).
-
-To adjust the schedule, edit the cron expression:
-
-```yaml
-schedule:
-  - cron: '0 9 * * 1'  # minute hour day-of-month month day-of-week
+ins-chat-plugin/
+├── .github/
+│   └── workflows/
+│       └── weekly-message.yml     # GitHub Actions workflow (optional)
+├── src/
+│   ├── __init__.py
+│   ├── rotation.py                # Core rotation calculation logic
+│   └── bot_simple.py              # Message generator
+├── config/
+│   └── config.yaml                # Configuration file
+├── tests/
+│   ├── __init__.py
+│   └── test_rotation.py           # Unit tests
+├── .gitignore
+├── requirements.txt               # Python dependencies
+├── README.md                      # This file
+└── QUICKSTART.md                  # Quick start guide
 ```
-
-Common schedules:
-- Every Monday at 9 AM UTC: `'0 9 * * 1'`
-- Every Monday at 5 PM UTC: `'0 17 * * 1'`
-- Every Friday at 12 PM UTC: `'0 12 * * 5'`
-
-**Note**: GitHub Actions uses UTC time. Convert your local timezone to UTC.
 
 ## Troubleshooting
-
-### 2FA / Authentication Issues
-
-**Problem**: Bot fails with "2FA required" or "Challenge required"
-
-**Solutions**:
-1. Disable 2FA on your Instagram account (for automation)
-2. Complete any Instagram security challenges in the mobile app
-3. Use a dedicated Instagram account without 2FA
-
-### Session Expiration
-
-**Problem**: Bot fails with login errors after working previously
-
-**Solution**: Instagram sessions expire after ~90 days. The bot will automatically re-authenticate, but you may need to:
-1. Complete any security challenges in Instagram app
-2. Verify credentials are still correct in GitHub Secrets
-
-### Thread ID Not Found
-
-**Problem**: Bot fails with "Thread not found" or "not accessible"
-
-**Solutions**:
-1. Run `python scripts/find_thread.py` to get the current thread ID
-2. Update `thread_id` in `config/config.yaml`
-3. Ensure your Instagram account has access to the group chat
 
 ### Wrong Week Number
 
@@ -273,123 +286,58 @@ Common schedules:
 - Format: `YYYY-MM-DD`
 - Week 1 starts on this date
 
-### Rate Limiting
+### Rotation Seems Wrong
 
-**Problem**: Bot fails with rate limit errors
+**Problem**: Wrong person is solo or groups look incorrect
 
-**Solution**: The bot includes automatic retry with exponential backoff. If issues persist:
-1. Ensure you're only running once per week
-2. Don't manually trigger the workflow multiple times in quick succession
-3. Wait a few hours and try again
+**Solutions**:
+1. Check the participant order in `config/config.yaml`
+2. Verify you haven't changed the list recently (changes reset the cycle)
+3. Run the bot to see the current rotation calculation
 
-## Modifying Participants
+### GitHub Actions Not Running
 
-To add or remove participants:
+**Problem**: Workflow doesn't run on schedule
 
-1. Edit `config/config.yaml`
-2. Update the `participants` list
-3. Commit and push changes
+**Solutions**:
+1. Verify GitHub Actions is enabled in your repository
+2. Check the workflow file syntax
+3. GitHub Actions can be delayed by up to 10-15 minutes
+4. Try running manually first to test
 
-```bash
-git add config/config.yaml
-git commit -m "Update participants list"
-git push
-```
+## Why This Approach?
 
-**Important Notes**:
-- Changing the participant list resets the rotation
-- The order of participants matters (determines rotation sequence)
-- Maximum 8 participants
-- Minimum 1 participant
+**Simple**: No API keys, no authentication, no complex setup
 
-## Project Structure
+**Reliable**: Can't get blocked by Instagram, no rate limits
 
-```
-ins-chat-plugin/
-├── .github/
-│   └── workflows/
-│       └── weekly-rotation.yml    # GitHub Actions workflow
-├── src/
-│   ├── __init__.py
-│   ├── bot.py                     # Main orchestration
-│   ├── rotation.py                # Rotation calculation logic
-│   └── instagram_client.py        # Instagram API wrapper
-├── config/
-│   └── config.yaml                # Configuration file
-├── scripts/
-│   └── find_thread.py             # Helper to find thread IDs
-├── tests/
-│   ├── __init__.py
-│   ├── test_rotation.py           # Unit tests
-│   └── test_bot.py                # Bot tests
-├── .gitignore                     # Git ignore rules
-├── .env.example                   # Environment variable template
-├── requirements.txt               # Python dependencies
-└── README.md                      # This file
-```
+**Transparent**: You see exactly what will be posted before posting it
 
-## Exit Codes
+**Flexible**: Easy to customize messages and manually adjust if needed
 
-The bot uses the following exit codes:
+**Portable**: Works locally, on GitHub Actions, or anywhere Python runs
 
-- `0`: Success
-- `1`: Configuration error
-- `2`: Authentication error
-- `3`: Message sending error
-- `99`: Unknown error
+## FAQ
 
-These help with debugging failed GitHub Actions runs.
+**Q: Can I automate posting to Instagram?**
+A: Instagram's API has restrictions and authentication issues. Manual copy-paste is simpler and more reliable.
 
-## Security Considerations
+**Q: Can I use this for other messaging platforms?**
+A: Yes! Copy-paste works everywhere - Slack, Discord, Telegram, WhatsApp, etc.
 
-- ✅ Credentials stored as GitHub Secrets (encrypted)
-- ✅ `.env` file excluded from version control
-- ✅ Session files excluded from version control
-- ⚠️ Consider using a dedicated Instagram account for automation
-- ⚠️ Instagram may restrict automated access if detected
+**Q: What if I need to skip a week?**
+A: Just don't post that week. The bot will calculate the correct week when you run it again.
 
-## Development
+**Q: Can I have different groups each week?**
+A: The rotation is deterministic based on the week number. For custom groupings, edit the message manually.
 
-### Running Tests
-
-```bash
-# All tests
-pytest tests/ -v
-
-# Specific test file
-pytest tests/test_rotation.py -v
-
-# With coverage
-pytest tests/ --cov=src --cov-report=html
-```
-
-### Code Structure
-
-- **src/rotation.py**: Pure Python logic for rotation calculation (no external dependencies)
-- **src/instagram_client.py**: Instagram API wrapper with error handling and retry logic
-- **src/bot.py**: Main orchestration that ties everything together
-- **scripts/find_thread.py**: Utility script for finding thread IDs
-
-## License
-
-[Your License Here]
-
-## Contributing
-
-[Your Contributing Guidelines Here]
+**Q: How do I change the rotation order?**
+A: Reorder the participants in `config/config.yaml`. Note: This resets the rotation cycle.
 
 ## Support
 
 If you encounter issues:
-
-1. Check the [Troubleshooting](#troubleshooting) section
-2. Review GitHub Actions logs for error messages
-3. Run locally with `DRY_RUN=true` to debug
-4. Open an issue with logs and error messages
-
-## Acknowledgments
-
-Built with:
-- [instagrapi](https://github.com/subzeroid/instagrapi) - Instagram Private API wrapper
-- [PyYAML](https://pyyaml.org/) - YAML parser
-- [python-dotenv](https://github.com/theskumar/python-dotenv) - Environment variable management
+1. Check that `config/config.yaml` is properly formatted
+2. Verify your start date is correct
+3. Run tests with `pytest tests/ -v`
+4. Check GitHub Actions logs if using automation

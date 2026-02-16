@@ -1,0 +1,57 @@
+name: Weekly Rotation Message Generator
+
+on:
+  # Run every Monday at 9 AM UTC
+  schedule:
+    - cron: '0 9 * * 1'
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  generate-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install PyYAML
+
+      - name: Generate rotation message
+        run: |
+          echo "::group::📱 Rotation Message"
+          python -m src.bot_simple
+          echo "::endgroup::"
+
+      - name: Create message file
+        run: |
+          python -m src.bot_simple > rotation-message.txt
+          echo "Message saved to rotation-message.txt"
+
+      - name: Upload message as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rotation-message
+          path: rotation-message.txt
+          retention-days: 7
+
+      - name: Display instructions
+        run: |
+          echo "✅ Message generated successfully!"
+          echo ""
+          echo "📋 To post the message:"
+          echo "1. Check the output above"
+          echo "2. Or download the 'rotation-message' artifact"
+          echo "3. Copy the message"
+          echo "4. Paste it into your Instagram group chat"
+          echo ""
+          echo "💡 Tip: You can also run this locally with:"
+          echo "   python -m src.bot_simple"

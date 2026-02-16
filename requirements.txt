@@ -1,6 +1,5 @@
-# Note: This project requires Python 3.8+
-# The local environment has Python 3.7, but GitHub Actions will use Python 3.11
-instagrapi>=2.0.0
+# Instagram Rotation Bot - Simple Copy-Paste Version
+# No Instagram API needed!
+
 PyYAML>=6.0
-python-dotenv>=1.0.0
 pytest>=7.4.0

@@ -6,19 +6,29 @@ instagram:
   thread_id: "123456789012345678"
 
 rotation:
-  # Start date for week 1 (YYYY-MM-DD format, preferably a Monday)
-  start_date: "2026-02-17"
+  # Start date for week 1 (YYYY-MM-DD format)
+  # March 1, 2026 is a Sunday (training day)
+  start_date: "2026-03-01"
 
   # List of participants (1-8 people)
   # Order matters: rotation cycles through this list
   # If < 5 people: everyone stays in one group
   # If >= 5 people: splits into main group (n-1) and solo person (rotates weekly)
+  # Week 1 (Mar 1): Eldon solo
+  # Week 2 (Mar 8): Jack solo
+  # Week 3 (Mar 15): Joe solo
+  # Week 4 (Mar 22): Sean solo
+  # Week 5 (Mar 29): Jin solo
   participants:
-    - "Alice"
-    - "Bob"
-    - "Charlie"
-    - "Diana"
-    - "Eve"
+    - "Eldon"
+    - "Jack"
+    - "Joe"
+    - "Sean"
+    - "Jin"
+
+  # Optional: List people who are unavailable THIS WEEK ONLY
+  # Leave empty [] if everyone is available
+  unavailable_this_week: []
 
 message:
   # Template for when there's only 1 group (< 5 participants)

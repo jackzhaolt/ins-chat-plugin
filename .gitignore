@@ -102,10 +102,8 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
+# Virtual environments
 .venv
-env/
 venv/
 ENV/
 env.bak/
@@ -141,10 +139,6 @@ cython_debug/
 *.swp
 *.swo
 *~
-
-# Instagram session files
-session.json
-*.session
 
 # Mac
 .DS_Store
