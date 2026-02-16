@@ -3,14 +3,15 @@
 # Email notifications (optional)
 email:
   enabled: true  # Set to false to disable email
-  recipient: "qq835490396@gmail.com"  # Your email address
+  # Recipient can be a single email or list of emails
+  recipient: "qq835490396@gmail.com"
+  # For multiple recipients, use list format:
+  # recipient:
+  #   - "email1@gmail.com"
+  #   - "email2@gmail.com"
+  #   - "email3@gmail.com"
   smtp_server: "smtp.gmail.com"  # Gmail SMTP server
   smtp_port: 587  # TLS port
-
-instagram:
-  # Instagram group chat thread ID
-  # To find this, run: python scripts/find_thread.py
-  thread_id: "123456789012345678"
 
 rotation:
   # Start date for week 1 (YYYY-MM-DD format)

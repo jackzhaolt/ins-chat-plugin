@@ -4,7 +4,7 @@ import logging
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from typing import Optional
+from typing import List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -35,26 +35,30 @@ class EmailSender:
 
     def send_email(
         self,
-        recipient_email: str,
+        recipient_email: List[str],
         subject: str,
         message: str,
     ) -> bool:
         """
-        Send an email.
+        Send an email to one or more recipients.
 
         Args:
-            recipient_email: Email address to send to
+            recipient_email: Email address(es) to send to (string or list)
             subject: Email subject line
             message: Email message body (plain text)
 
         Returns:
             True if sent successfully, False otherwise
         """
+        # Normalize to list
+        if isinstance(recipient_email, str):
+            recipient_email = [recipient_email]
+
         try:
             # Create message
             msg = MIMEMultipart()
             msg["From"] = self.sender_email
-            msg["To"] = recipient_email
+            msg["To"] = ", ".join(recipient_email)  # Comma-separated for display
             msg["Subject"] = subject
 
             # Add message body
@@ -66,8 +70,13 @@ class EmailSender:
                 server.starttls()  # Secure connection
                 logger.info("Logging in to email account...")
                 server.login(self.sender_email, self.sender_password)
-                logger.info(f"Sending email to {recipient_email}...")
-                server.send_message(msg)
+
+                # Log recipients
+                recipients_str = ", ".join(recipient_email)
+                logger.info(f"Sending email to {len(recipient_email)} recipient(s): {recipients_str}")
+
+                # Send to all recipients
+                server.send_message(msg, to_addrs=recipient_email)
 
             logger.info("✓ Email sent successfully!")
             return True

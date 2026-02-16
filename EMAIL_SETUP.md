@@ -35,6 +35,8 @@ You'll use Gmail to send emails. You need an "App Password" (not your regular Gm
 
 Edit `config/config.yaml`:
 
+### Single Recipient
+
 ```yaml
 email:
   enabled: true
@@ -43,7 +45,22 @@ email:
   smtp_port: 587
 ```
 
-**Replace `your.email@gmail.com` with your actual email address!**
+### Multiple Recipients
+
+To send to multiple people:
+
+```yaml
+email:
+  enabled: true
+  recipient:  # ← Use list format for multiple emails
+    - "person1@gmail.com"
+    - "person2@gmail.com"
+    - "person3@gmail.com"
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+```
+
+**Replace with your actual email address(es)!**
 
 ---
 

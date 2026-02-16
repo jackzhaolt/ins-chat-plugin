@@ -1,5 +1,6 @@
-"""Simple bot that just prints the message for manual copy-paste."""
+"""Simple CLI interface for rotation bot."""
 
+import logging
 import os
 import sys
 from datetime import datetime
@@ -12,72 +13,45 @@ except ImportError:
     print("Install it with: pip install PyYAML")
     sys.exit(1)
 
-from src.rotation import calculate_current_week, get_rotation
-from src.email_sender import EmailSender
+from src.bot import RotationBot
+from src.config import BotConfig
+from src.services import NotificationServiceFactory
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
-def main():
-    """Generate and print rotation message for manual posting."""
+def print_rotation_info(bot: RotationBot, message: str) -> None:
+    """Print rotation information in a user-friendly format."""
+    rotation = bot.generate_rotation()
+    config = bot.config
+
     print("=" * 80)
     print("📱 Instagram Rotation Message Generator")
     print("=" * 80)
     print()
-
-    # Load config
-    config_path = Path(__file__).parent.parent / "config" / "config.yaml"
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-
-    # Get rotation info
-    start_date = datetime.strptime(config["rotation"]["start_date"], "%Y-%m-%d").date()
-    participants = config["rotation"]["participants"]
-    unavailable = config["rotation"].get("unavailable_this_week", [])
-
-    # Calculate current week and rotation
-    week_number = calculate_current_week(start_date)
-    rotation = get_rotation(week_number, participants, unavailable)
-
-    # Format message
-    unavailable_note = ""
-    if rotation.get("unavailable"):
-        unavailable_note = f"\n\n⚠️ Unavailable this week: {', '.join(rotation['unavailable'])}"
-
-    if "all" in rotation:
-        # Single group
-        template = config["message"]["single_group_template"]
-        all_members = ", ".join(rotation["all"])
-        message = template.format(week_number=week_number, all_members=all_members)
-    else:
-        # Two groups
-        template = config["message"]["split_group_template"]
-        main_group = ", ".join(rotation["main"])
-        solo_person = rotation["solo"][0]
-        message = template.format(
-            week_number=week_number, main_group=main_group, solo_person=solo_person
-        )
-
-    # Add unavailable note if there are any
-    message += unavailable_note
-
-    # Print info
     print(f"📅 Today: {datetime.now().strftime('%Y-%m-%d')}")
-    print(f"📆 Start date: {start_date}")
-    print(f"🔢 Week number: {week_number}")
+    print(f"📆 Start date: {config.rotation.start_date.strftime('%Y-%m-%d')}")
+    print(f"🔢 Week number: {rotation.week_number}")
     print()
-    print("👥 Participants:", ", ".join(participants))
+    print("👥 Participants:", ", ".join(config.rotation.participants))
 
-    if rotation.get("unavailable"):
-        print(f"⚠️  Unavailable this week: {', '.join(rotation['unavailable'])}")
+    if rotation.unavailable:
+        print(f"⚠️  Unavailable this week: {', '.join(rotation.unavailable)}")
 
     print()
 
-    if "all" in rotation:
+    if rotation.is_single_group:
         print("📋 Rotation: Single group (< 5 people)")
-        print(f"   All together: {', '.join(rotation['all'])}")
+        print(f"   All together: {', '.join(rotation.main_group)}")
     else:
         print("📋 Rotation: Two groups (≥ 5 people)")
-        print(f"   🏢 Main group: {', '.join(rotation['main'])}")
-        print(f"   🌟 Solo: {rotation['solo'][0]}")
+        print(f"   🏢 Main group: {', '.join(rotation.main_group)}")
+        print(f"   🌟 Solo: {rotation.solo_person[0]}")
 
     print()
     print("=" * 80)
@@ -90,52 +64,84 @@ def main():
     print("✅ Copy the message above and paste it into your Instagram group chat!")
     print("=" * 80)
 
-    # Optional: Send email if configured
-    email_config = config.get("email")
-    if email_config and email_config.get("enabled"):
-        print()
-        print("=" * 80)
-        print("📧 Sending email notification...")
-        print("=" * 80)
 
-        try:
-            # Get email credentials from environment variables
+def main():
+    """Main entry point for simple CLI bot."""
+    # Get project root and config path
+    project_root = Path(__file__).parent.parent
+    config_path = project_root / "config" / "config.yaml"
+
+    try:
+        # Load config
+        config = BotConfig.from_yaml(config_path)
+        config.validate()
+
+        # Create notification service if email is enabled
+        notification_service = None
+        if config.email.enabled:
+            # Get credentials from environment
             sender_email = os.getenv("EMAIL_SENDER")
             sender_password = os.getenv("EMAIL_PASSWORD")
-            recipient_email = email_config.get("recipient")
-            smtp_server = email_config.get("smtp_server", "smtp.gmail.com")
-            smtp_port = email_config.get("smtp_port", 587)
 
-            if not sender_email or not sender_password:
-                print("⚠️  Email credentials not found in environment variables")
-                print("   Set EMAIL_SENDER and EMAIL_PASSWORD")
-            elif not recipient_email:
-                print("⚠️  Recipient email not configured in config.yaml")
-            else:
-                # Send email
-                email_sender = EmailSender(
-                    smtp_server=smtp_server,
-                    smtp_port=smtp_port,
+            if sender_email and sender_password:
+                notification_service = NotificationServiceFactory.create_email_service(
+                    smtp_server=config.email.smtp_server,
+                    smtp_port=config.email.smtp_port,
                     sender_email=sender_email,
                     sender_password=sender_password,
+                    recipient_email=config.email.recipient,
                 )
-
-                subject = f"Training Rotation - Week {week_number}"
-                success = email_sender.send_email(
-                    recipient_email=recipient_email,
-                    subject=subject,
-                    message=message,
+                logger.info("Email notifications enabled")
+            else:
+                logger.warning(
+                    "Email enabled but credentials not found in environment variables"
                 )
+                logger.warning("Set EMAIL_SENDER and EMAIL_PASSWORD to enable email")
 
-                if success:
-                    print(f"✅ Email sent to {recipient_email}!")
-                else:
-                    print("❌ Failed to send email. Check logs above.")
+        # Create bot
+        bot = RotationBot.from_config_file(
+            config_path=config_path,
+            notification_service=notification_service,
+        )
 
-        except Exception as e:
-            print(f"❌ Error sending email: {e}")
+        # Run bot
+        message = bot.run(send_notification=notification_service is not None)
 
-    print()
+        # Print results
+        print_rotation_info(bot, message)
+
+        # Print email status
+        if config.email.enabled and notification_service:
+            print()
+            print("=" * 80)
+            print("📧 Email Notifications")
+            print("=" * 80)
+            recipients_str = ", ".join(config.email.recipient)
+            print(f"✅ Email sent to {len(config.email.recipient)} recipient(s):")
+            for recipient in config.email.recipient:
+                print(f"   • {recipient}")
+            print("=" * 80)
+        elif config.email.enabled:
+            print()
+            print("=" * 80)
+            print("⚠️  Email notifications enabled but credentials not provided")
+            print("Set EMAIL_SENDER and EMAIL_PASSWORD environment variables")
+            print("=" * 80)
+
+        print()
+
+    except FileNotFoundError as e:
+        logger.error(f"❌ Configuration file not found: {e}")
+        sys.exit(1)
+
+    except ValueError as e:
+        logger.error(f"❌ Configuration error: {e}")
+        sys.exit(1)
+
+    except Exception as e:
+        logger.error(f"❌ Unexpected error: {e}")
+        logger.exception("Full traceback:")
+        sys.exit(99)
 
 
 if __name__ == "__main__":
