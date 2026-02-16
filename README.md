@@ -8,9 +8,10 @@ Automated rotation message generator that calculates weekly team groupings. Run 
 - 🔄 **Intelligent Grouping**:
   - If < 5 participants: Everyone stays together in one group
   - If ≥ 5 participants: Splits into main group (n-1) and solo person with weekly rotation
+- 📧 **Email Notifications**: Get weekly rotation messages via email
 - 📋 **Copy-Paste Ready**: Generates formatted messages ready to paste into Instagram
 - ⚙️ **Easy Configuration**: Simple YAML file for participants and settings
-- 🤖 **GitHub Actions**: Optional weekly reminder (message appears in logs)
+- 🤖 **GitHub Actions**: Automatic weekly emails (runs 6 days before training)
 - ✅ **No Authentication**: No Instagram API, no login issues, no blocking
 
 ## How It Works
@@ -121,6 +122,18 @@ Have a great week!
 ### 4. Copy and Paste
 
 Copy the message between the lines and paste it into your Instagram group chat!
+
+## Email Notifications (Optional)
+
+Get automatic email reminders every Monday (6 days before Sunday training)!
+
+**Quick Setup:**
+1. Configure your email in `config.yaml`
+2. Set up Gmail App Password (takes 2 minutes)
+3. Add GitHub Secrets
+4. Done! You'll get weekly emails
+
+**Full guide:** See [EMAIL_SETUP.md](EMAIL_SETUP.md) for detailed instructions.
 
 ## Configuration
 

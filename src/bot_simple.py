@@ -1,5 +1,6 @@
 """Simple bot that just prints the message for manual copy-paste."""
 
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -12,6 +13,7 @@ except ImportError:
     sys.exit(1)
 
 from src.rotation import calculate_current_week, get_rotation
+from src.email_sender import EmailSender
 
 
 def main():
@@ -87,6 +89,53 @@ def main():
     print("=" * 80)
     print("✅ Copy the message above and paste it into your Instagram group chat!")
     print("=" * 80)
+
+    # Optional: Send email if configured
+    email_config = config.get("email")
+    if email_config and email_config.get("enabled"):
+        print()
+        print("=" * 80)
+        print("📧 Sending email notification...")
+        print("=" * 80)
+
+        try:
+            # Get email credentials from environment variables
+            sender_email = os.getenv("EMAIL_SENDER")
+            sender_password = os.getenv("EMAIL_PASSWORD")
+            recipient_email = email_config.get("recipient")
+            smtp_server = email_config.get("smtp_server", "smtp.gmail.com")
+            smtp_port = email_config.get("smtp_port", 587)
+
+            if not sender_email or not sender_password:
+                print("⚠️  Email credentials not found in environment variables")
+                print("   Set EMAIL_SENDER and EMAIL_PASSWORD")
+            elif not recipient_email:
+                print("⚠️  Recipient email not configured in config.yaml")
+            else:
+                # Send email
+                email_sender = EmailSender(
+                    smtp_server=smtp_server,
+                    smtp_port=smtp_port,
+                    sender_email=sender_email,
+                    sender_password=sender_password,
+                )
+
+                subject = f"Training Rotation - Week {week_number}"
+                success = email_sender.send_email(
+                    recipient_email=recipient_email,
+                    subject=subject,
+                    message=message,
+                )
+
+                if success:
+                    print(f"✅ Email sent to {recipient_email}!")
+                else:
+                    print("❌ Failed to send email. Check logs above.")
+
+        except Exception as e:
+            print(f"❌ Error sending email: {e}")
+
+    print()
 
 
 if __name__ == "__main__":

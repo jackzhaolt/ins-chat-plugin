@@ -1,7 +1,8 @@
-name: Weekly Rotation Message Generator
+name: Weekly Rotation Email Reminder
 
 on:
-  # Run every Monday at 9 AM UTC
+  # Run every Monday at 9 AM UTC (6 days before Sunday training)
+  # Training is on Sunday, so send reminder on Monday
   schedule:
     - cron: '0 9 * * 1'
 
@@ -25,9 +26,12 @@ jobs:
         run: |
           pip install PyYAML
 
-      - name: Generate rotation message
+      - name: Generate and email rotation message
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: |
-          echo "::group::📱 Rotation Message"
+          echo "::group::📱 Rotation Message & Email"
           python -m src.bot_simple
           echo "::endgroup::"
 

@@ -1,5 +1,12 @@
 # Instagram Chat Plugin Bot Configuration
 
+# Email notifications (optional)
+email:
+  enabled: true  # Set to false to disable email
+  recipient: "qq835490396@gmail.com"  # Your email address
+  smtp_server: "smtp.gmail.com"  # Gmail SMTP server
+  smtp_port: 587  # TLS port
+
 instagram:
   # Instagram group chat thread ID
   # To find this, run: python scripts/find_thread.py
