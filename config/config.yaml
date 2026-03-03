@@ -15,24 +15,29 @@ email:
 
 rotation:
   # Start date for week 1 (YYYY-MM-DD format)
-  # March 1, 2026 is a Sunday (training day)
-  start_date: "2026-03-01"
+  # Weeks run Mon-Sun, labeled by ending Sunday
+  # Week 1: Feb 23 - Mar 1  ("Mar 1 schedule")
+  # Week 2: Mar 2  - Mar 8  ("Mar 8 schedule")
+  # Week 3: Mar 9  - Mar 15 ("Mar 15 schedule")
+  # Week 4: Mar 16 - Mar 22 ("Mar 22 schedule")
+  # Week 5: Mar 23 - Mar 29 ("Mar 29 schedule")
+  start_date: "2026-02-23"
 
   # List of participants (1-8 people)
   # Order matters: rotation cycles through this list
   # If < 5 people: everyone stays in one group
   # If >= 5 people: splits into main group (n-1) and solo person (rotates weekly)
-  # Week 1 (Mar 1): Eldon solo
-  # Week 2 (Mar 8): Jack solo
-  # Week 3 (Mar 15): Joe solo
-  # Week 4 (Mar 22): Sean solo
-  # Week 5 (Mar 29): Jin solo
+  # Week 1 (Mar 1):  Eldon solo
+  # Week 2 (Mar 8):  Jack solo
+  # Week 3 (Mar 15): Jin solo
+  # Week 4 (Mar 22): Joe solo
+  # Week 5 (Mar 29): Sean solo
   participants:
     - "Eldon"
     - "Jack"
+    - "Jin"
     - "Joe"
     - "Sean"
-    - "Jin"
 
   # Optional: List people who are unavailable THIS WEEK ONLY
   # Leave empty [] if everyone is available
