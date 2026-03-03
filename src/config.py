@@ -1,7 +1,7 @@
 """Configuration management for rotation bot."""
 
-from dataclasses import dataclass
-from datetime import datetime
+from dataclasses import dataclass, field
+from datetime import datetime, date
 from pathlib import Path
 from typing import List, Optional
 
@@ -24,12 +24,21 @@ class EmailConfig:
 
 
 @dataclass
+class ScheduledUnavailableEntry:
+    """A participant who is unavailable on specific dates."""
+
+    participant: str
+    dates: List[date]
+
+
+@dataclass
 class RotationConfig:
     """Rotation settings configuration."""
 
     start_date: datetime
     participants: List[str]
     unavailable_this_week: List[str]
+    scheduled_unavailable: List[ScheduledUnavailableEntry] = field(default_factory=list)
 
 
 @dataclass
@@ -99,10 +108,24 @@ class BotConfig:
         if len(participants) > 8:
             raise ValueError(f"Maximum 8 participants allowed, got {len(participants)}")
 
+        scheduled_unavailable = []
+        for entry in rotation_data.get("scheduled_unavailable", []):
+            parsed_dates = [
+                datetime.strptime(str(d), "%Y-%m-%d").date()
+                for d in entry.get("dates", [])
+            ]
+            scheduled_unavailable.append(
+                ScheduledUnavailableEntry(
+                    participant=entry["participant"],
+                    dates=parsed_dates,
+                )
+            )
+
         rotation_config = RotationConfig(
             start_date=start_date,
             participants=participants,
             unavailable_this_week=rotation_data.get("unavailable_this_week", []),
+            scheduled_unavailable=scheduled_unavailable,
         )
 
         # Validate and parse message config

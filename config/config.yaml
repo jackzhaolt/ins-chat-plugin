@@ -43,10 +43,18 @@ rotation:
   # Leave empty [] if everyone is available
   unavailable_this_week: []
 
+  # Scheduled unavailability: automatically marks people out on specific training Sundays
+  scheduled_unavailable:
+    - participant: "Joe"
+      dates:
+        - "2026-04-19"
+        - "2026-04-26"
+        - "2026-05-03"
+
 message:
   # Template for when there's only 1 group (< 5 participants)
   single_group_template: |
-    📅 Week {week_number} - All Together!
+    📅 {training_date} - All Together!
 
     👥 Team: {all_members}
 
@@ -54,7 +62,7 @@ message:
 
   # Template for when there are 2 groups (>= 5 participants)
   split_group_template: |
-    📅 Week {week_number} Rotation
+    📅 {training_date} Rotation
 
     🏢 Main Group: {main_group}
     🌟 Solo: {solo_person}

@@ -1,7 +1,7 @@
 """Rotation calculation service."""
 
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import List
 
 from src.rotation import calculate_current_week, get_rotation
@@ -12,6 +12,7 @@ class RotationResult:
     """Result of rotation calculation."""
 
     week_number: int
+    training_date: date
     main_group: List[str]
     solo_person: List[str]
     unavailable: List[str]
@@ -58,6 +59,9 @@ class RotationService:
         # Calculate week number
         week_number = calculate_current_week(self.start_date)
 
+        # Sunday ending this week = start_date + (week_number - 1) * 7 + 6
+        training_date = self.start_date + timedelta(days=(week_number - 1) * 7 + 6)
+
         # Get rotation from core logic
         rotation = get_rotation(week_number, self.participants, unavailable)
 
@@ -66,6 +70,7 @@ class RotationService:
             # Single group mode
             return RotationResult(
                 week_number=week_number,
+                training_date=training_date,
                 main_group=rotation["all"],
                 solo_person=[],
                 unavailable=rotation.get("unavailable", []),
@@ -75,6 +80,7 @@ class RotationService:
             # Two groups mode
             return RotationResult(
                 week_number=week_number,
+                training_date=training_date,
                 main_group=rotation["main"],
                 solo_person=rotation["solo"],
                 unavailable=rotation.get("unavailable", []),

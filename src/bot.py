@@ -1,6 +1,7 @@
 """Main rotation bot with clean architecture."""
 
 import logging
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -51,9 +52,22 @@ class RotationBot:
         Returns:
             RotationResult with current rotation details
         """
-        return self.rotation_service.calculate_rotation(
-            unavailable=self.config.rotation.unavailable_this_week
-        )
+        unavailable = list(self.config.rotation.unavailable_this_week)
+
+        # Check scheduled unavailability
+        if self.config.rotation.scheduled_unavailable:
+            start = self.rotation_service.start_date
+            today = date.today()
+            from src.rotation import calculate_current_week
+            week_number = calculate_current_week(start)
+            week_start = start + timedelta(days=(week_number - 1) * 7)
+            week_end = week_start + timedelta(days=6)
+            for entry in self.config.rotation.scheduled_unavailable:
+                if entry.participant not in unavailable:
+                    if any(week_start <= d <= week_end for d in entry.dates):
+                        unavailable.append(entry.participant)
+
+        return self.rotation_service.calculate_rotation(unavailable=unavailable)
 
     def format_message(self, rotation: RotationResult) -> str:
         """
@@ -106,7 +120,8 @@ class RotationBot:
 
         # Send notification if requested
         if send_notification and self.notification_service:
-            subject = f"Training Rotation - Week {rotation.week_number}"
+            d = rotation.training_date
+            subject = f"Training Rotation - Sunday {d.strftime('%b')} {d.day}"
             success = self.send_notification(message, subject)
 
             if success:

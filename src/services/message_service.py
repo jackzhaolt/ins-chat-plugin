@@ -29,8 +29,11 @@ class SingleGroupFormatter:
     def format(self, rotation: RotationResult) -> str:
         """Format single group message."""
         all_members = ", ".join(rotation.main_group)
+        d = rotation.training_date
+        training_date = f"Sunday ({d.strftime('%b')} {d.day})"
         message = self.template.format(
             week_number=rotation.week_number,
+            training_date=training_date,
             all_members=all_members,
         )
 
@@ -57,9 +60,12 @@ class SplitGroupFormatter:
         """Format split group message."""
         main_group = ", ".join(rotation.main_group)
         solo_person = rotation.solo_person[0] if rotation.solo_person else ""
+        d = rotation.training_date
+        training_date = f"Sunday ({d.strftime('%b')} {d.day})"
 
         message = self.template.format(
             week_number=rotation.week_number,
+            training_date=training_date,
             main_group=main_group,
             solo_person=solo_person,
         )
