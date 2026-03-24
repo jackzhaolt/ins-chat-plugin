@@ -27,17 +27,17 @@ rotation:
   # Order matters: rotation cycles through this list
   # If < 5 people: everyone stays in one group
   # If >= 5 people: splits into main group (n-1) and solo person (rotates weekly)
-  # Week 1 (Mar 1):  Eldon solo
-  # Week 2 (Mar 8):  Jack solo
-  # Week 3 (Mar 15): Jin solo
-  # Week 4 (Mar 22): Joe solo
-  # Week 5 (Mar 29): Sean solo
+  # Week 1 (Mar 1):  Sean solo
+  # Week 2 (Mar 8):  Eldon solo
+  # Week 3 (Mar 15): Jack solo
+  # Week 4 (Mar 22): Jin solo
+  # Week 5 (Mar 29): Joe solo
   participants:
+    - "Sean"
     - "Eldon"
     - "Jack"
     - "Jin"
     - "Joe"
-    - "Sean"
 
   # Optional: List people who are unavailable THIS WEEK ONLY
   # Leave empty [] if everyone is available
